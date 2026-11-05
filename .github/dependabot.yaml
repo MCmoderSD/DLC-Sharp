@@ -1,0 +1,15 @@
+version: 2
+
+updates:
+  # NuGet packages of all projects (library, examples and the tests once they exist)
+  - package-ecosystem: "nuget"
+    directories:
+      - "/**/*"
+    schedule:
+      interval: "weekly"
+    groups:
+      # One pull request for all minor and patch updates, major updates come separately
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"

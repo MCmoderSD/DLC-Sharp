@@ -1,0 +1,27 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# Rider / JetBrains and Visual Studio
+.idea/
+.vs/
+*.user
+*.suo
+*.DotSettings.user
+
+# Test results
+TestResults/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Files the examples write next to the DLC file or into the working directory
+*.dlc.key
+links.json

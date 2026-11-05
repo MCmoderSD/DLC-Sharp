@@ -1,0 +1,33 @@
+# Let Git detect text files and keep them with LF line endings on every machine.
+# All files in this repository use LF, so this also overrides core.autocrlf.
+* text=auto eol=lf
+
+# Source, project and documentation files
+*.cs          text diff=csharp
+*.csproj      text
+*.slnx        text
+*.props       text
+*.targets     text
+*.json        text
+*.xml         text
+*.yml         text
+*.yaml        text
+*.md          text diff=markdown
+.editorconfig text
+
+# Windows scripts need CRLF
+*.bat         text eol=crlf
+*.cmd         text eol=crlf
+
+# DLC containers are a single line of Base64, never touch or diff them as text
+*.dlc         binary
+
+# Binary files
+*.dll         binary
+*.exe         binary
+*.pdb         binary
+*.nupkg       binary
+*.snupkg      binary
+*.png         binary
+*.jpg         binary
+*.ico         binary
