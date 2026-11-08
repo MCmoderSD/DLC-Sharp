@@ -18,7 +18,7 @@ public class DlcXmlParserTests
     }
 
     [Fact]
-    public void Parse_ReadsEveryFieldOfTheSample()
+    public void ParseReadsEveryFieldOfTheSample()
     {
         var container = Parse(DlcTestFactory.SampleXml());
 
@@ -55,7 +55,7 @@ public class DlcXmlParserTests
     }
 
     [Fact]
-    public void Parse_ReturnsACopyOfTheContainerKey()
+    public void ParseReturnsACopyOfTheContainerKey()
     {
         var container = Parse(DlcTestFactory.SampleXml());
 
@@ -64,13 +64,13 @@ public class DlcXmlParserTests
     }
 
     [Fact]
-    public void Parse_WithoutPackages_ReturnsAnEmptyList()
+    public void ParseWithoutPackagesReturnsAnEmptyList()
     {
         Assert.Empty(Parse(DlcTestFactory.ContainerXml(string.Empty)).Packages);
     }
 
     [Fact]
-    public void Parse_IgnoresPackagesOutsideTheContentElement()
+    public void ParseIgnoresPackagesOutsideTheContentElement()
     {
         Assert.Empty(Parse("<dlc><package name=\"x\"/><content/></dlc>").Packages);
     }
@@ -80,7 +80,7 @@ public class DlcXmlParserTests
     [InlineData("<header/>")]
     [InlineData("<header><generator/><tribute/></header>")]
     [InlineData("<header><dlcxmlversion>   </dlcxmlversion></header>")]
-    public void Parse_WithoutHeaderValues_LeavesTheHeaderEmpty(string header)
+    public void ParseWithoutHeaderValuesLeavesTheHeaderEmpty(string header)
     {
         var result = Parse("<dlc>" + header + "<content/></dlc>").Header;
 
@@ -94,7 +94,7 @@ public class DlcXmlParserTests
     [Theory]
     [InlineData("<package/>")]
     [InlineData("<package name=\"\" passwords=\"\" comment=\"\" category=\"\"/>")]
-    public void Parse_PackageWithoutValues_HasNoValues(string packageXml)
+    public void ParsePackageWithoutValuesHasNoValues(string packageXml)
     {
         var package = ParseSinglePackage(packageXml);
 
@@ -106,7 +106,7 @@ public class DlcXmlParserTests
     }
 
     [Fact]
-    public void Parse_KeepsValuesThatAreNotBase64AsTheyAre()
+    public void ParseKeepsValuesThatAreNotBase64AsTheyAre()
     {
         var package = ParseSinglePackage(
             "<package name=\"Plain Name\" passwords=\"{x, y}\" comment=\"a &amp; b\">"
@@ -125,7 +125,7 @@ public class DlcXmlParserTests
     }
 
     [Fact]
-    public void Parse_KeepsAFileWithoutAUrl()
+    public void ParseKeepsAFileWithoutAUrl()
     {
         var file = Assert.Single(ParseSinglePackage(DlcTestFactory.PackageXml(null, null, null, null, DlcTestFactory.FileXml(null, "only-a-name.bin", 7))).Files);
 
@@ -141,7 +141,7 @@ public class DlcXmlParserTests
     [InlineData("-5", null)]
     [InlineData("4.2", null)]
     [InlineData("", null)]
-    public void Parse_ReadsTheFileSizeAsAnUnsignedNumber(string text, long? expected)
+    public void ParseReadsTheFileSizeAsAnUnsignedNumber(string text, long? expected)
     {
         var package = ParseSinglePackage($"<package><file><size>{text}</size></file></package>");
 
@@ -180,7 +180,7 @@ public class DlcXmlParserTests
     [InlineData("{abc", "{abc")]
     [InlineData("{a]", "{a]")]
     [InlineData("[a}", "[a}")]
-    public void Parse_ReadsPasswordsInAllTheirNotations(string passwords, string expectedJoined)
+    public void ParseReadsPasswordsInAllTheirNotations(string passwords, string expectedJoined)
     {
         var package = ParseSinglePackage(DlcTestFactory.PackageXml("p", passwords, null, null));
 
@@ -192,7 +192,7 @@ public class DlcXmlParserTests
     [InlineData("")]
     [InlineData("<dlc><content></dlc>")]
     [InlineData("not XML at all")]
-    public void Parse_RejectsInputThatIsNotWellFormedXml(string xml)
+    public void ParseRejectsInputThatIsNotWellFormedXml(string xml)
     {
         var exception = Assert.Throws<DlcFormatException>(() => Parse(xml));
 
@@ -204,7 +204,7 @@ public class DlcXmlParserTests
     [InlineData("<!DOCTYPE dlc [<!ENTITY x \"y\">]><dlc><content/></dlc>")]
     [InlineData("<!DOCTYPE dlc [<!ENTITY xxe SYSTEM \"file:///c:/windows/win.ini\">]><dlc><content>&xxe;</content></dlc>")]
     [InlineData("<!DOCTYPE dlc SYSTEM \"http://127.0.0.1:9/evil.dtd\"><dlc><content/></dlc>")]
-    public void Parse_RejectsDocumentTypeDeclarations(string xml)
+    public void ParseRejectsDocumentTypeDeclarations(string xml)
     {
         var exception = Assert.Throws<DlcFormatException>(() => Parse(xml));
 
@@ -214,7 +214,7 @@ public class DlcXmlParserTests
     [Theory]
     [InlineData("<dlc/>")]
     [InlineData("<dlc><package name=\"x\"/></dlc>")]
-    public void Parse_RejectsXmlWithoutAContentElement(string xml)
+    public void ParseRejectsXmlWithoutAContentElement(string xml)
     {
         var exception = Assert.Throws<DlcFormatException>(() => Parse(xml));
 

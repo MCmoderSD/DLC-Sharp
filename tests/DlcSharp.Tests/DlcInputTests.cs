@@ -7,7 +7,7 @@ public class DlcInputTests
     private static string KeyPart => DlcTestFactory.KeyPart();
 
     [Fact]
-    public void Parse_SplitsOffTheLastEightyEightCharactersAsKeyPart()
+    public void ParseSplitsOffTheLastEightyEightCharactersAsKeyPart()
     {
         var input = DlcInput.Parse("A" + KeyPart);
 
@@ -16,7 +16,7 @@ public class DlcInputTests
     }
 
     [Fact]
-    public void Parse_RemovesWhitespaceAndByteOrderMarks()
+    public void ParseRemovesWhitespaceAndByteOrderMarks()
     {
         var input = DlcInput.Parse("\uFEFF PAY\r\nLOAD0\t" + KeyPart.Insert(10, "\n").Insert(50, "  ") + " \uFEFF\n");
 
@@ -25,7 +25,7 @@ public class DlcInputTests
     }
 
     [Fact]
-    public void Parse_KeepsPaddingCharacters()
+    public void ParseKeepsPaddingCharacters()
     {
         var input = DlcInput.Parse("AB==" + KeyPart);
 
@@ -34,7 +34,7 @@ public class DlcInputTests
     }
 
     [Fact]
-    public void Parse_RejectsInputThatIsNotLongerThanTheKeyPart()
+    public void ParseRejectsInputThatIsNotLongerThanTheKeyPart()
     {
         var exception = Assert.Throws<DlcFormatException>(() => DlcInput.Parse(KeyPart));
 
@@ -46,7 +46,7 @@ public class DlcInputTests
     [InlineData('-')]
     [InlineData('_')]
     [InlineData('<')]
-    public void Parse_RejectsCharactersThatAreNotBase64(char invalid)
+    public void ParseRejectsCharactersThatAreNotBase64(char invalid)
     {
         var exception = Assert.Throws<DlcFormatException>(() => DlcInput.Parse("PAYLOAD" + invalid + "0" + KeyPart));
 

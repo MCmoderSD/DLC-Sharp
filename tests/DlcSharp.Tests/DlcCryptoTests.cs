@@ -5,7 +5,7 @@ namespace DlcSharp.Tests;
 public class DlcCryptoTests
 {
     [Fact]
-    public void DecryptCbcNoPadding_MatchesTheOfficialAesTestVector()
+    public void DecryptCbcNoPaddingMatchesTheOfficialAesTestVector()
     {
         var key = Convert.FromHexString("000102030405060708090a0b0c0d0e0f");
         var cipher = Convert.FromHexString("69c4e0d86a7b0430d8cdb78070b4c55a");
@@ -15,7 +15,7 @@ public class DlcCryptoTests
     }
 
     [Fact]
-    public void DecryptCbcNoPadding_ReversesCbcEncryptionOfSeveralBlocks()
+    public void DecryptCbcNoPaddingReversesCbcEncryptionOfSeveralBlocks()
     {
         var key = DlcTestFactory.ContainerKey(3);
         var iv = DlcTestFactory.ContainerKey(4);

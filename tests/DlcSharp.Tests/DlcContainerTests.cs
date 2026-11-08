@@ -37,7 +37,7 @@ public class DlcContainerTests
     }
 
     [Fact]
-    public void NewModels_HaveEmptyListsInsteadOfNull()
+    public void NewModelsHaveEmptyListsInsteadOfNull()
     {
         var container = new DlcContainer();
         var package = new DlcPackage();
@@ -50,7 +50,7 @@ public class DlcContainerTests
     }
 
     [Fact]
-    public void ToJson_Compact_WritesTheExpectedJson()
+    public void ToJsonCompactWritesTheExpectedJson()
     {
         const string expected =
             """{"header":{"generatorApp":"TestGenerator","generatorVersion":"1.2.3","generatorUrl":"https://generator.test","tributeName":"tester","dlcXmlVersion":"20_02_2008"}"""
@@ -61,7 +61,7 @@ public class DlcContainerTests
     }
 
     [Fact]
-    public void ToJson_Indented_IsTheDefaultAndHoldsTheSameData()
+    public void ToJsonIndentedIsTheDefaultAndHoldsTheSameData()
     {
         var container = Sample();
         var indented = container.ToJson();
@@ -72,7 +72,7 @@ public class DlcContainerTests
     }
 
     [Fact]
-    public void ToJson_OfAnEmptyContainer_WritesAnEmptyHeaderAndNoPackages()
+    public void ToJsonOfAnEmptyContainerWritesAnEmptyHeaderAndNoPackages()
     {
         Assert.Equal("""{"header":{},"packages":[]}""", new DlcContainer().ToJson(false));
     }

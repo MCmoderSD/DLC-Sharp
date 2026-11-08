@@ -35,7 +35,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_String_ReturnsTheDecryptedContainer()
+    public async Task DecodeAsyncStringReturnsTheDecryptedContainer()
     {
         var container = await CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key)).DecodeAsync(SampleDlc(), Token);
 
@@ -45,7 +45,7 @@ public class DlcDecoderTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task DecodeAsync_ByteArray_ReturnsTheDecryptedContainer(bool withByteOrderMark)
+    public async Task DecodeAsyncByteArrayReturnsTheDecryptedContainer(bool withByteOrderMark)
     {
         var container = await CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key)).DecodeAsync(SampleBytes(withByteOrderMark), Token);
 
@@ -55,7 +55,7 @@ public class DlcDecoderTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task DecodeAsync_Stream_ReturnsTheDecryptedContainerAndLeavesTheStreamOpen(bool withByteOrderMark)
+    public async Task DecodeAsyncStreamReturnsTheDecryptedContainerAndLeavesTheStreamOpen(bool withByteOrderMark)
     {
         using var stream = new MemoryStream(SampleBytes(withByteOrderMark));
         var container = await CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key)).DecodeAsync(stream, Token);
@@ -65,7 +65,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_XmlWithLeadingByteOrderMarkAndWhitespace_StillDecodes()
+    public async Task DecodeAsyncXmlWithLeadingByteOrderMarkAndWhitespaceStillDecodes()
     {
         var dlc = DlcTestFactory.BuildDlc("\uFEFF \r\n\t" + DlcTestFactory.SampleXml() + "  \n", Key);
         var container = await CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key)).DecodeAsync(dlc, Token);
@@ -74,7 +74,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_KeyServiceAnswerWithLineBreaksInsideTheRcElement_StillWorks()
+    public async Task DecodeAsyncKeyServiceAnswerWithLineBreaksInsideTheRcElementStillWorks()
     {
         var body = DlcTestFactory.ServiceBody(Key).Replace("<rc>", "<rc>\r\n  ").Replace("</rc>", "\r\n</rc>");
         var container = await CreateDecoder(FakeKeyServiceHandler.ReturningBody(body)).DecodeAsync(SampleDlc(), Token);
@@ -83,7 +83,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WithCustomAppKeyAndIv_UnwrapsTheContainerKeyWithThem()
+    public async Task DecodeAsyncWithCustomAppKeyAndIvUnwrapsTheContainerKeyWithThem()
     {
         byte[] appKey = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         byte[] appIv = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
@@ -99,7 +99,7 @@ public class DlcDecoderTests
     [InlineData("http://service.test/key", null, "http://service.test/key?srcType=dlc&destType=pylo&data=")]
     [InlineData("https://service.test/key?token=abc", null, "https://service.test/key?token=abc&srcType=dlc&destType=pylo&data=")]
     [InlineData(null, "my app/ü", "https://service.jdownloader.org/dlcrypt/service.php?srcType=dlc&destType=my%20app%2F%C3%BC&data=")]
-    public async Task DecodeAsync_AsksTheKeyServiceWithEscapedParameters(string? serviceUrl, string? appName, string expectedStart)
+    public async Task DecodeAsyncAsksTheKeyServiceWithEscapedParameters(string? serviceUrl, string? appName, string expectedStart)
     {
         var options = new DlcDecoderOptions();
         if (serviceUrl != null)
@@ -126,7 +126,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_InfiniteTimeout_StillDecodes()
+    public async Task DecodeAsyncInfiniteTimeoutStillDecodes()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key), new DlcDecoderOptions { Timeout = Timeout.InfiniteTimeSpan });
         var container = await decoder.DecodeAsync(SampleDlc(), Token);
@@ -135,7 +135,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_OptionsChangedAfterConstruction_DoNotAffectTheDecoder()
+    public async Task DecodeAsyncOptionsChangedAfterConstructionDoNotAffectTheDecoder()
     {
         var handler = FakeKeyServiceHandler.ReturningKey(Key);
         var options = new DlcDecoderOptions();
@@ -152,7 +152,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void Decode_DecryptsWithoutContactingTheKeyService()
+    public void DecodeDecryptsWithoutContactingTheKeyService()
     {
         var handler = FakeKeyServiceHandler.MustNotBeCalled();
         var container = CreateDecoder(handler).Decode(SampleDlc(), Key);
@@ -162,14 +162,14 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void Constructors_WithoutHttpClient_CreateWorkingDecoders()
+    public void ConstructorsWithoutHttpClientCreateWorkingDecoders()
     {
         AssertIsSample(new DlcDecoder().Decode(SampleDlc(), Key));
         AssertIsSample(new DlcDecoder(new DlcDecoderOptions()).Decode(SampleDlc(), Key));
     }
 
     [Fact]
-    public void Decode_WithAContainerKeyOfTheWrongLength_ThrowsAnArgumentException()
+    public void DecodeWithAContainerKeyOfTheWrongLengthThrowsAnArgumentException()
     {
         var exception = Assert.Throws<ArgumentException>(() => new DlcDecoder().Decode(SampleDlc(), new byte[15]));
 
@@ -177,7 +177,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void Constructor_WithNullOptions_ThrowsAnArgumentNullException()
+    public void ConstructorWithNullOptionsThrowsAnArgumentNullException()
     {
         var exception = Assert.Throws<ArgumentNullException>(() => new DlcDecoder(null!));
 
@@ -185,7 +185,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void Constructor_WithNullHttpClient_ThrowsAnArgumentNullException()
+    public void ConstructorWithNullHttpClientThrowsAnArgumentNullException()
     {
         var exception = Assert.Throws<ArgumentNullException>(() => new DlcDecoder((HttpClient) null!));
 
@@ -193,7 +193,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void Constructor_WithHttpClient_AlsoValidatesTheOptions()
+    public void ConstructorWithHttpClientAlsoValidatesTheOptions()
     {
         var exception = Assert.Throws<ArgumentException>(() => CreateDecoder(FakeKeyServiceHandler.MustNotBeCalled(), new DlcDecoderOptions { AppName = " " }));
 
@@ -201,7 +201,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WithNullArguments_ThrowsAnArgumentNullException()
+    public async Task DecodeAsyncWithNullArgumentsThrowsAnArgumentNullException()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.MustNotBeCalled());
 
@@ -211,7 +211,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void Decode_WithNullArguments_ThrowsAnArgumentNullException()
+    public void DecodeWithNullArgumentsThrowsAnArgumentNullException()
     {
         var decoder = new DlcDecoder();
 
@@ -220,7 +220,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_InputThatIsNoContainer_ThrowsAFormatExceptionWithoutAskingTheService()
+    public async Task DecodeAsyncInputThatIsNoContainerThrowsAFormatExceptionWithoutAskingTheService()
     {
         var handler = FakeKeyServiceHandler.MustNotBeCalled();
 
@@ -232,7 +232,7 @@ public class DlcDecoderTests
     [Theory]
     [InlineData("AAAAAAAAAA" + "AAAAAAAAAA" + "AAA=", 17)]
     [InlineData("====", 0)]
-    public async Task DecodeAsync_PayloadThatIsNotWholeBlocks_ThrowsAFormatException(string payload, int length)
+    public async Task DecodeAsyncPayloadThatIsNotWholeBlocksThrowsAFormatException(string payload, int length)
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key));
         var exception = await Assert.ThrowsAsync<DlcFormatException>(() => decoder.DecodeAsync(payload + DlcTestFactory.KeyPart(), Token));
@@ -241,7 +241,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WhenTheServiceReturnsAnotherKey_ThrowsAFormatException()
+    public async Task DecodeAsyncWhenTheServiceReturnsAnotherKeyThrowsAFormatException()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningKey(DlcTestFactory.ContainerKey(2)));
         var exception = await Assert.ThrowsAsync<DlcFormatException>(() => decoder.DecodeAsync(SampleDlc(), Token));
@@ -252,7 +252,7 @@ public class DlcDecoderTests
     [Theory]
     [InlineData(HttpStatusCode.InternalServerError)]
     [InlineData(HttpStatusCode.TooManyRequests)]
-    public async Task DecodeAsync_WhenTheServiceAnswersWithAnErrorStatus_ThrowsAnHttpErrorWithTheStatusCode(HttpStatusCode status)
+    public async Task DecodeAsyncWhenTheServiceAnswersWithAnErrorStatusThrowsAnHttpErrorWithTheStatusCode(HttpStatusCode status)
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningStatus(status));
         var exception = await Assert.ThrowsAsync<DlcServiceException>(() => decoder.DecodeAsync(SampleDlc(), Token));
@@ -263,7 +263,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WhenTheServiceCannotBeReached_ThrowsAnUnreachableError()
+    public async Task DecodeAsyncWhenTheServiceCannotBeReachedThrowsAnUnreachableError()
     {
         var inner = new HttpRequestException("no route to host");
         var decoder = CreateDecoder(FakeKeyServiceHandler.Throwing(inner));
@@ -276,7 +276,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WhenTheServiceDoesNotAnswerInTime_ThrowsATimeoutError()
+    public async Task DecodeAsyncWhenTheServiceDoesNotAnswerInTimeThrowsATimeoutError()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.Hanging(), new DlcDecoderOptions { Timeout = TimeSpan.FromMilliseconds(50) });
         var exception = await Assert.ThrowsAsync<DlcServiceException>(() => decoder.DecodeAsync(SampleDlc(), Token));
@@ -287,7 +287,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WhenTheCallerCancels_ThrowsTheCancellationInsteadOfAServiceError()
+    public async Task DecodeAsyncWhenTheCallerCancelsThrowsTheCancellationInsteadOfAServiceError()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.Hanging());
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
@@ -299,7 +299,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_StreamWithATokenThatIsAlreadyCancelled_ThrowsBeforeReadingAnything()
+    public async Task DecodeAsyncStreamWithATokenThatIsAlreadyCancelledThrowsBeforeReadingAnything()
     {
         var handler = FakeKeyServiceHandler.MustNotBeCalled();
         
@@ -315,7 +315,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_WhenTheServiceAnswerHasNoRcElement_ThrowsAMissingKeyError()
+    public async Task DecodeAsyncWhenTheServiceAnswerHasNoRcElementThrowsAMissingKeyError()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningBody("<html><body>Too many requests</body></html>"));
         var exception = await Assert.ThrowsAsync<DlcServiceException>(() => decoder.DecodeAsync(SampleDlc(), Token));
@@ -327,7 +327,7 @@ public class DlcDecoderTests
     [Theory]
     [InlineData("<rc></rc>", 0)]
     [InlineData("<rc>QUJDREVGR0hJSktMTU5P</rc>", 15)]
-    public async Task DecodeAsync_WhenTheServiceKeyIsTooShort_ThrowsAnInvalidKeyError(string body, int length)
+    public async Task DecodeAsyncWhenTheServiceKeyIsTooShortThrowsAnInvalidKeyError(string body, int length)
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningBody(body));
         var exception = await Assert.ThrowsAsync<DlcServiceException>(() => decoder.DecodeAsync(SampleDlc(), Token));
@@ -337,7 +337,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsync_ExceptionsFromTheHandlerThatAreNotNetworkErrors_AreNotWrapped()
+    public async Task DecodeAsyncExceptionsFromTheHandlerThatAreNotNetworkErrorsAreNotWrapped()
     {
         var decoder = CreateDecoder(FakeKeyServiceHandler.Throwing(new InvalidOperationException("unexpected")));
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => decoder.DecodeAsync(SampleDlc(), Token));

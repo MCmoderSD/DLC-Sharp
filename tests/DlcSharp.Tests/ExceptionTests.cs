@@ -5,7 +5,7 @@ namespace DlcSharp.Tests;
 public class ExceptionTests
 {
     [Fact]
-    public void DlcFormatException_KeepsMessageAndInnerException()
+    public void DlcFormatExceptionKeepsMessageAndInnerException()
     {
         var inner = new InvalidOperationException("cause");
         var exception = new DlcFormatException("broken", inner);
@@ -16,7 +16,7 @@ public class ExceptionTests
     }
 
     [Fact]
-    public void DlcServiceException_KeepsAllValues()
+    public void DlcServiceExceptionKeepsAllValues()
     {
         var inner = new HttpRequestException("cause");
         var exception = new DlcServiceException(DlcServiceError.HttpError, "failed", HttpStatusCode.BadGateway, inner);
@@ -28,7 +28,7 @@ public class ExceptionTests
     }
 
     [Fact]
-    public void DlcServiceException_WithoutOptionalValues_LeavesThemEmpty()
+    public void DlcServiceExceptionWithoutOptionalValuesLeavesThemEmpty()
     {
         var exception = new DlcServiceException(DlcServiceError.MissingKey, "no key");
 
@@ -37,7 +37,7 @@ public class ExceptionTests
     }
 
     [Fact]
-    public void BothExceptions_DeriveFromDlcException()
+    public void BothExceptionsDeriveFromDlcException()
     {
         Assert.IsType<DlcException>(new DlcFormatException("x"), exactMatch: false);
         Assert.IsType<DlcException>(new DlcServiceException(DlcServiceError.Unreachable, "x"), exactMatch: false);

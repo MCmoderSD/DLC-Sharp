@@ -3,7 +3,7 @@ namespace DlcSharp.Tests;
 public class DlcDecoderOptionsTests
 {
     [Fact]
-    public void Defaults_PointToTheJDownloaderServiceWithThePyLoadApplication()
+    public void DefaultsPointToTheJDownloaderServiceWithThePyLoadApplication()
     {
         var options = new DlcDecoderOptions();
 
@@ -18,7 +18,7 @@ public class DlcDecoderOptionsTests
     [InlineData(null, UriKind.Absolute)]
     [InlineData("/dlcrypt/service.php", UriKind.Relative)]
     [InlineData("ftp://service.test/key", UriKind.Absolute)]
-    public void Constructor_RejectsAServiceUrlThatIsNotAbsoluteHttpOrHttps(string? url, UriKind kind)
+    public void ConstructorRejectsAServiceUrlThatIsNotAbsoluteHttpOrHttps(string? url, UriKind kind)
     {
         var options = new DlcDecoderOptions { ServiceUrl = url == null ? null! : new Uri(url, kind) };
         var exception = Assert.Throws<ArgumentException>(() => new DlcDecoder(options));
@@ -29,7 +29,7 @@ public class DlcDecoderOptionsTests
     [Theory]
     [InlineData(null)]
     [InlineData("   ")]
-    public void Constructor_RejectsAnEmptyAppName(string? appName)
+    public void ConstructorRejectsAnEmptyAppName(string? appName)
     {
         var options = new DlcDecoderOptions { AppName = appName! };
         var exception = Assert.Throws<ArgumentException>(() => new DlcDecoder(options));
@@ -44,7 +44,7 @@ public class DlcDecoderOptionsTests
     [InlineData("AppIv", null)]
     [InlineData("AppIv", 15)]
     [InlineData("AppIv", 17)]
-    public void Constructor_RejectsAKeyOrIvThatIsNotSixteenBytes(string property, int? length)
+    public void ConstructorRejectsAKeyOrIvThatIsNotSixteenBytes(string property, int? length)
     {
         var value = length == null ? null! : new byte[length.Value];
         var options = property == "AppKey" ? new DlcDecoderOptions { AppKey = value } : new DlcDecoderOptions { AppIv = value };
@@ -56,7 +56,7 @@ public class DlcDecoderOptionsTests
     [Theory]
     [InlineData(0)]
     [InlineData(-5000)]
-    public void Constructor_RejectsATimeoutThatIsNotPositive(int milliseconds)
+    public void ConstructorRejectsATimeoutThatIsNotPositive(int milliseconds)
     {
         var options = new DlcDecoderOptions { Timeout = TimeSpan.FromMilliseconds(milliseconds) };
         var exception = Assert.Throws<ArgumentException>(() => new DlcDecoder(options));

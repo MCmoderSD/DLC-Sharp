@@ -13,7 +13,7 @@ public class LenientBase64Tests
     }
 
     [Fact]
-    public void IsAlphabet_IsTrueForExactlyTheSixtyFourBase64Characters()
+    public void IsAlphabetIsTrueForExactlyTheSixtyFourBase64Characters()
     {
         var accepted = new List<char>();
         for (var code = 0; code <= char.MaxValue; code++)
@@ -31,7 +31,7 @@ public class LenientBase64Tests
     [InlineData("QQ==", "A")]
     [InlineData("QUI=", "AB")]
     [InlineData("QUJD", "ABC")]
-    public void Decode_DecodesPaddedBase64(string input, string expected)
+    public void DecodeDecodesPaddedBase64(string input, string expected)
     {
         Assert.Equal(expected, DecodeToAscii(input));
     }
@@ -39,7 +39,7 @@ public class LenientBase64Tests
     [Theory]
     [InlineData("QQ", "A")]
     [InlineData("QUI", "AB")]
-    public void Decode_AcceptsMissingPadding(string input, string expected)
+    public void DecodeAcceptsMissingPadding(string input, string expected)
     {
         Assert.Equal(expected, DecodeToAscii(input));
     }
@@ -48,7 +48,7 @@ public class LenientBase64Tests
     [InlineData("QUJD\r\nREVG", "ABCDEF")]  // line breaks of a DLC file
     [InlineData("\0QUJD\0", "ABC")]         // NUL padding of the decrypted payload
     [InlineData("QU-JD_", "ABC")]           // characters of the URL-safe alphabet
-    public void Decode_SkipsCharactersThatAreNotPartOfTheAlphabet(string input, string expected)
+    public void DecodeSkipsCharactersThatAreNotPartOfTheAlphabet(string input, string expected)
     {
         Assert.Equal(expected, DecodeToAscii(input));
     }
@@ -56,7 +56,7 @@ public class LenientBase64Tests
     [Theory]
     [InlineData("QUI=QUJD", "AB")]
     [InlineData("==QUJD", "")]
-    public void Decode_StopsAtTheFirstPaddingCharacter(string input, string expected)
+    public void DecodeStopsAtTheFirstPaddingCharacter(string input, string expected)
     {
         Assert.Equal(expected, DecodeToAscii(input));
     }
@@ -64,7 +64,7 @@ public class LenientBase64Tests
     [Theory]
     [InlineData("QUJDR", "ABC")]
     [InlineData("A", "")]
-    public void Decode_DropsASingleLeftoverCharacter(string input, string expected)
+    public void DecodeDropsASingleLeftoverCharacter(string input, string expected)
     {
         Assert.Equal(expected, DecodeToAscii(input));
     }
@@ -72,13 +72,13 @@ public class LenientBase64Tests
     [Theory]
     [InlineData("")]
     [InlineData("!!!")]
-    public void Decode_ReturnsNothingWhenNoAlphabetCharactersRemain(string input)
+    public void DecodeReturnsNothingWhenNoAlphabetCharactersRemain(string input)
     {
         Assert.Empty(LenientBase64.Decode(input));
     }
 
     [Fact]
-    public void Decode_HandlesPlusAndSlash()
+    public void DecodeHandlesPlusAndSlash()
     {
         Assert.Equal(new byte[] { 0xFB, 0xEF, 0xBE, 0xFF, 0xFF, 0xFF }, LenientBase64.Decode("++++////"));
     }
@@ -86,7 +86,7 @@ public class LenientBase64Tests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void DecodeFieldOrRaw_ReturnsAnEmptyStringForEmptyInput(string raw)
+    public void DecodeFieldOrRawReturnsAnEmptyStringForEmptyInput(string raw)
     {
         Assert.Equal(string.Empty, LenientBase64.DecodeFieldOrRaw(raw));
     }
@@ -95,13 +95,13 @@ public class LenientBase64Tests
     [InlineData("TWE=", "Ma")]
     [InlineData("TWFu", "Man")]
     [InlineData("  TWFu\r\n", "Man")]
-    public void DecodeFieldOrRaw_DecodesBase64Text(string raw, string expected)
+    public void DecodeFieldOrRawDecodesBase64Text(string raw, string expected)
     {
         Assert.Equal(expected, LenientBase64.DecodeFieldOrRaw(raw));
     }
 
     [Fact]
-    public void DecodeFieldOrRaw_DecodesTextThatContainsNonAsciiCharacters()
+    public void DecodeFieldOrRawDecodesTextThatContainsNonAsciiCharacters()
     {
         var raw = DlcTestFactory.Encode("Müller – ä ö ü ß 日本語");
 
@@ -117,7 +117,7 @@ public class LenientBase64Tests
     [InlineData("QQ==QQ==")]    // padding in the middle
     [InlineData("//7/")]        // valid Base64, but the bytes are no valid UTF-8
     [InlineData("1234")]        // a plain number that happens to be valid Base64
-    public void DecodeFieldOrRaw_ReturnsTheInputWhenItIsNoBase64EncodedText(string raw)
+    public void DecodeFieldOrRawReturnsTheInputWhenItIsNoBase64EncodedText(string raw)
     {
         Assert.Equal(raw, LenientBase64.DecodeFieldOrRaw(raw));
     }
