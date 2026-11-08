@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -52,7 +53,7 @@ internal static class DlcTestFactory
 
         if (size != null)
         {
-            xml += $"<size>{Encode(size.Value.ToString())}</size>";
+            xml += $"<size>{Encode(size.Value.ToString(CultureInfo.InvariantCulture))}</size>";
         }
 
         return xml + "</file>";
