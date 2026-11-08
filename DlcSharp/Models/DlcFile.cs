@@ -1,11 +1,10 @@
-namespace DlcSharp
+namespace DlcSharp;
+
+public sealed class DlcFile
 {
-    public sealed class DlcFile
-    {
-        public string? Url { get; init; }
+    public string? Url { get; init; }
 
-        public string? FileName { get; init; }
+    public string? FileName { get; init; }
 
-        public long? Size { get; init; }
-    }
+    public long? Size { get; init; }
 }
