@@ -41,6 +41,9 @@
         <None Include="..\LICENSE" Pack="true" PackagePath="\" Visible="false"/>
         <None Include="..\README.md" Pack="true" PackagePath="\" Visible="false"/>
         <None Include="..\icon\icon.png" Pack="true" PackagePath="\" Visible="false"/>
+
+        <!-- The tests call the internal classes directly -->
+        <InternalsVisibleTo Include="DlcSharp.Tests"/>
     </ItemGroup>
 
 </Project>

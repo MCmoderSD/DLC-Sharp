@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="DlcSharp/DlcSharp.csproj"/>
   <Project Path="examples/DlcSharp.Examples/DlcSharp.Examples.csproj"/>
+  <Project Path="tests/DlcSharp.Tests/DlcSharp.Tests.csproj"/>
 </Solution>
