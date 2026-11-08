@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    name: Build, test and pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: branch
+        name: Check that the tagged commit is on the default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if ! git merge-base --is-ancestor HEAD "origin/$DEFAULT_BRANCH"; then
+            echo "The tagged commit is not on '$DEFAULT_BRANCH'. Releases are only built from the default branch." >&2
+            exit 1
+          fi
+
+      - id: setup-dotnet
+        name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - id: version
+        name: Check that the tag matches the project version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag '$TAG' is not a version like 1.2.3 or 1.2.3-preview.1" >&2
+            exit 1
+          fi
+          PROJECT_VERSION="$(dotnet msbuild DlcSharp/DlcSharp.csproj -getProperty:Version -nologo)"
+          if [ "$PROJECT_VERSION" != "$TAG" ]; then
+            echo "Tag '$TAG' does not match <Version> '$PROJECT_VERSION' in DlcSharp/DlcSharp.csproj" >&2
+            exit 1
+          fi
+
+      - id: restore
+        name: Restore
+        run: dotnet restore DlcSharp.slnx
+
+      - id: build
+        name: Build
+        run: dotnet build DlcSharp.slnx -c Release --no-restore -p:ContinuousIntegrationBuild=true
+
+      # Runs as soon as a test project exists under tests/
+      - id: test
+        name: Test
+        if: ${{ hashFiles('tests/**/*.csproj') != '' }}
+        run: dotnet test DlcSharp.slnx -c Release --no-build
+
+      - id: pack
+        name: Pack
+        run: dotnet pack DlcSharp/DlcSharp.csproj -c Release --no-build -p:ContinuousIntegrationBuild=true -o artifacts
+
+      - id: upload
+        name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: artifacts/*
+          if-no-files-found: error
+
+  publish-nuget:
+    name: Publish to nuget.org
+    needs: pack
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - id: download
+        name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: artifacts
+
+      - id: setup-dotnet
+        name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - id: login
+        name: NuGet login (OIDC to temporary API key)
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - id: push
+        name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  publish-github:
+    name: Publish to GitHub Packages
+    needs: pack
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - id: download
+        name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: artifacts
+
+      - id: setup-dotnet
+        name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - id: push
+        name: Push to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "$GITHUB_TOKEN" --source "https://nuget.pkg.github.com/$OWNER/index.json" --skip-duplicate
+
+  publish-nexus:
+    name: Publish to Nexus
+    needs: pack
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - id: download
+        name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: artifacts
+
+      - id: setup-dotnet
+        name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - id: push
+        name: Push to Nexus
+        env:
+          NEXUS_URL: ${{ vars.NEXUS_URL }}
+          NEXUS_USER: ${{ vars.NEXUS_USER }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          : "${NEXUS_URL:?Set the repository variable NEXUS_URL}"
+          : "${NEXUS_USER:?Set the repository variable NEXUS_USER}"
+          : "${NEXUS_PASSWORD:?Set the repository secret NEXUS_PASSWORD}"
+          dotnet nuget add source "$NEXUS_URL" --name nexus --username "$NEXUS_USER" --password "$NEXUS_PASSWORD" --store-password-in-clear-text
+          dotnet nuget push "artifacts/*.nupkg" --source nexus --skip-duplicate
