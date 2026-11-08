@@ -79,7 +79,7 @@ public sealed partial class DlcDecoder
     /// <exception cref="ArgumentNullException"><paramref name="dlcContent"/> is <see langword="null"/>.</exception>
     /// <exception cref="DlcFormatException">The input is not a usable DLC container.</exception>
     /// <exception cref="DlcServiceException">The key service did not provide a key.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was cancelled.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was canceled.</exception>
     public Task<DlcContainer> DecodeAsync(string dlcContent, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dlcContent);
@@ -95,7 +95,7 @@ public sealed partial class DlcDecoder
     /// <exception cref="ArgumentNullException"><paramref name="dlcBytes"/> is <see langword="null"/>.</exception>
     /// <exception cref="DlcFormatException">The input is not a usable DLC container.</exception>
     /// <exception cref="DlcServiceException">The key service did not provide a key.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was cancelled.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was canceled.</exception>
     public Task<DlcContainer> DecodeAsync(byte[] dlcBytes, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dlcBytes);
@@ -111,7 +111,7 @@ public sealed partial class DlcDecoder
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     /// <exception cref="DlcFormatException">The input is not a usable DLC container.</exception>
     /// <exception cref="DlcServiceException">The key service did not provide a key.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was cancelled.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was canceled.</exception>
     public async Task<DlcContainer> DecodeAsync(Stream stream, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
