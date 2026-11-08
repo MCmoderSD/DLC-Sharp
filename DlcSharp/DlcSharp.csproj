@@ -27,8 +27,8 @@
 
         <!-- NuGet: repository -->
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://www.GitHub.com/MCmoderSD/DLC-Sharp</RepositoryUrl>
-        <PackageProjectUrl>https://www.GitHub.com/MCmoderSD/DLC-Sharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/MCmoderSD/DLC-Sharp</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/MCmoderSD/DLC-Sharp</PackageProjectUrl>
 
         <!-- NuGet: source link and symbols -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
