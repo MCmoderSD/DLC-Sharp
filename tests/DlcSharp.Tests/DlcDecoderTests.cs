@@ -135,7 +135,7 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public async Task DecodeAsyncOptionsChangedAfterConstructionDoNotAffectTheDecoder()
+    public async Task DecodeAsyncOptionsReplacedAfterConstructionDoNotAffectTheDecoder()
     {
         var handler = FakeKeyServiceHandler.ReturningKey(Key);
         var options = new DlcDecoderOptions();
@@ -143,12 +143,26 @@ public class DlcDecoderTests
 
         options.ServiceUrl = new Uri("http://changed.test/");
         options.AppName = "changed";
+        options.AppKey = new byte[16];
+        options.AppIv = new byte[16];
+        options.Timeout = TimeSpan.FromSeconds(-5);
+        var container = await decoder.DecodeAsync(SampleDlc(), Token);
+
+        AssertIsSample(container);
+        Assert.StartsWith("https://service.jdownloader.org/dlcrypt/service.php?srcType=dlc&destType=pylo&", Assert.Single(handler.Requests).AbsoluteUri);
+    }
+
+    [Fact]
+    public async Task DecodeAsyncKeyAndIvChangedInPlaceAfterConstructionDoNotAffectTheDecoder()
+    {
+        var options = new DlcDecoderOptions();
+        var decoder = CreateDecoder(FakeKeyServiceHandler.ReturningKey(Key), options);
+
         options.AppKey[0] ^= 0xFF;
         options.AppIv[0] ^= 0xFF;
         var container = await decoder.DecodeAsync(SampleDlc(), Token);
 
         AssertIsSample(container);
-        Assert.StartsWith("https://service.jdownloader.org/dlcrypt/service.php?srcType=dlc&destType=pylo&", Assert.Single(handler.Requests).AbsoluteUri);
     }
 
     [Fact]
