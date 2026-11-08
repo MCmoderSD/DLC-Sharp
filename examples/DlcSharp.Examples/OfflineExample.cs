@@ -9,15 +9,14 @@ internal static class OfflineExample
 {
     public static async Task RunAsync(string dlcPath)
     {
-        var decoder = new DlcDecoder();
         var content = await File.ReadAllTextAsync(dlcPath);
         var keyPath = dlcPath + ".key";
 
         if (File.Exists(keyPath))
         {
-            // Second run: the key is known, so Decode works without a request to the service.
+            // Second run: the key is known. Decode is static, so it needs no decoder and sends no request.
             var key = Convert.FromBase64String(await File.ReadAllTextAsync(keyPath));
-            var container = decoder.Decode(content, key);
+            var container = DlcDecoder.Decode(content, key);
 
             Console.WriteLine($"Decoded offline with the saved key: {container.Packages.Count} package(s).");
             Console.WriteLine($"Delete '{keyPath}' to try the online path again.");
@@ -25,6 +24,7 @@ internal static class OfflineExample
         else
         {
             // First run: decode online and keep the 16-byte container key.
+            var decoder = new DlcDecoder();
             var container = await decoder.DecodeAsync(content);
             await File.WriteAllTextAsync(keyPath, Convert.ToBase64String(container.ContainerKey));
 

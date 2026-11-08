@@ -166,26 +166,22 @@ public class DlcDecoderTests
     }
 
     [Fact]
-    public void DecodeDecryptsWithoutContactingTheKeyService()
+    public void DecodeDecryptsWithAKnownContainerKey()
     {
-        var handler = FakeKeyServiceHandler.MustNotBeCalled();
-        var container = CreateDecoder(handler).Decode(SampleDlc(), Key);
-
-        AssertIsSample(container);
-        Assert.Empty(handler.Requests);
+        AssertIsSample(DlcDecoder.Decode(SampleDlc(), Key));
     }
 
     [Fact]
-    public void ConstructorsWithoutHttpClientCreateWorkingDecoders()
+    public async Task ConstructorsWithoutHttpClientCreateWorkingDecoders()
     {
-        AssertIsSample(new DlcDecoder().Decode(SampleDlc(), Key));
-        AssertIsSample(new DlcDecoder(new DlcDecoderOptions()).Decode(SampleDlc(), Key));
+        await Assert.ThrowsAsync<DlcFormatException>(() => new DlcDecoder().DecodeAsync("this is not a container!", Token));
+        await Assert.ThrowsAsync<DlcFormatException>(() => new DlcDecoder(new DlcDecoderOptions()).DecodeAsync("this is not a container!", Token));
     }
 
     [Fact]
     public void DecodeWithAContainerKeyOfTheWrongLengthThrowsAnArgumentException()
     {
-        var exception = Assert.Throws<ArgumentException>(() => new DlcDecoder().Decode(SampleDlc(), new byte[15]));
+        var exception = Assert.Throws<ArgumentException>(() => DlcDecoder.Decode(SampleDlc(), new byte[15]));
 
         Assert.Equal("containerKey", exception.ParamName);
     }
@@ -227,10 +223,8 @@ public class DlcDecoderTests
     [Fact]
     public void DecodeWithNullArgumentsThrowsAnArgumentNullException()
     {
-        var decoder = new DlcDecoder();
-
-        Assert.Throws<ArgumentNullException>(() => decoder.Decode(null!, Key));
-        Assert.Throws<ArgumentNullException>(() => decoder.Decode(SampleDlc(), null!));
+        Assert.Throws<ArgumentNullException>(() => DlcDecoder.Decode(null!, Key));
+        Assert.Throws<ArgumentNullException>(() => DlcDecoder.Decode(SampleDlc(), null!));
     }
 
     [Fact]

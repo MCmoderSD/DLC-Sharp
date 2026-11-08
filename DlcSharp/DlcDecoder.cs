@@ -131,7 +131,7 @@ public sealed partial class DlcDecoder
     /// <exception cref="ArgumentNullException"><paramref name="dlcContent"/> or <paramref name="containerKey"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="containerKey"/> is not exactly 16 bytes.</exception>
     /// <exception cref="DlcFormatException">The input is not a usable DLC container, or the key does not belong to it.</exception>
-    public DlcContainer Decode(string dlcContent, byte[] containerKey)
+    public static DlcContainer Decode(string dlcContent, byte[] containerKey)
     {
         ArgumentNullException.ThrowIfNull(dlcContent);
         ArgumentNullException.ThrowIfNull(containerKey);

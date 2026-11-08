@@ -63,9 +63,9 @@ A container is decrypted with a key that only the key service can hand out (see 
 string content = File.ReadAllText("links.dlc");
 
 DlcContainer first = await decoder.DecodeAsync(content);
-byte[] key = first.ContainerKey;                    // 16 bytes, keep it
+byte[] key = first.ContainerKey;                       // 16 bytes, keep it
 
-DlcContainer again = decoder.Decode(content, key);  // no request is made
+DlcContainer again = DlcDecoder.Decode(content, key);  // static: needs no decoder, makes no request
 ```
 
 ## Options
