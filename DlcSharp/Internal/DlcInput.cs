@@ -18,7 +18,7 @@ namespace DlcSharp.Internal
         public static DlcInput Parse(string text)
         {
             var sb = new StringBuilder(text.Length);
-            foreach (var c in text.Where(c => !char.IsWhiteSpace(c) && c != '﻿'))
+            foreach (var c in text.Where(c => !char.IsWhiteSpace(c) && c != '\uFEFF'))
             {
                 if (!LenientBase64.IsAlphabet(c) && c != '=')
                 {

@@ -83,7 +83,7 @@ namespace DlcSharp
             var decrypted = DlcCrypto.DecryptCbcNoPadding(encrypted, containerKey, containerKey);
 
             var xmlBytes = LenientBase64.Decode(Encoding.ASCII.GetString(decrypted));
-            var xml = Encoding.UTF8.GetString(xmlBytes).Trim('﻿', '\0', ' ', '\t', '\r', '\n');
+            var xml = Encoding.UTF8.GetString(xmlBytes).Trim('\uFEFF', '\0', ' ', '\t', '\r', '\n');
             if (!xml.StartsWith('<'))
             {
                 throw new DlcFormatException("The decrypted payload is not XML. The container key is probably wrong: the key service may have rate-limited this IP address or blocked the application name, or the input is not a DLC container.");
