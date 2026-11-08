@@ -4,6 +4,25 @@ using DlcSharp.Internal;
 
 namespace DlcSharp;
 
+/// <summary>
+/// Decrypts JDownloader DLC containers into <see cref="DlcContainer"/> objects.
+/// </summary>
+/// <remarks>
+/// Opening a container needs one request to the JDownloader key service, see <see cref="DlcDecoderOptions"/>.
+/// A decoder does not change after it is created, so one instance can be reused for many files and from several threads.
+/// </remarks>
+/// <example>
+/// <code>
+/// var decoder = new DlcDecoder();
+/// await using var stream = File.OpenRead("links.dlc");
+/// DlcContainer container = await decoder.DecodeAsync(stream);
+///
+/// foreach (DlcPackage package in container.Packages)
+/// {
+///     Console.WriteLine($"{package.Name}: {package.Files.Count} files");
+/// }
+/// </code>
+/// </example>
 public sealed partial class DlcDecoder
 {
     [GeneratedRegex("<rc>(.*?)</rc>", RegexOptions.Singleline | RegexOptions.CultureInvariant)]
@@ -16,35 +35,83 @@ public sealed partial class DlcDecoder
 
     private readonly DlcDecoderOptions _options;
 
+    /// <summary>
+    /// Creates a decoder with the default <see cref="DlcDecoderOptions"/> and a shared <see cref="HttpClient"/>.
+    /// </summary>
     public DlcDecoder()
     {
         _httpClient = SharedClient;
         _options = new DlcDecoderOptions().CloneAndValidate();
     }
 
+    /// <summary>
+    /// Creates a decoder with your own options and a shared <see cref="HttpClient"/>.
+    /// </summary>
+    /// <param name="options">The settings. They are checked and copied here, so later changes to the object have no effect.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">A value in <paramref name="options"/> is not valid.</exception>
     public DlcDecoder(DlcDecoderOptions options)
     {
         _httpClient = SharedClient;
         _options = (options ?? throw new ArgumentNullException(nameof(options))).CloneAndValidate();
     }
 
+    /// <summary>
+    /// Creates a decoder that sends its request with your own <see cref="HttpClient"/>,
+    /// for example to use a proxy, to add logging or to get the client from <c>IHttpClientFactory</c>.
+    /// </summary>
+    /// <param name="httpClient">The client for the key service request. The decoder does not dispose it.</param>
+    /// <param name="options">The settings, or <see langword="null"/> for the defaults. They are checked and copied here.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="httpClient"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">A value in <paramref name="options"/> is not valid.</exception>
     public DlcDecoder(HttpClient httpClient, DlcDecoderOptions? options = null)
     {   
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _options = (options ?? new DlcDecoderOptions()).CloneAndValidate();
     }
 
+    /// <summary>
+    /// Decrypts a container that is given as text.
+    /// </summary>
+    /// <param name="dlcContent">The content of a .dlc file. Whitespace, line breaks and a byte order mark are ignored.</param>
+    /// <param name="cancellationToken">Cancels the request to the key service.</param>
+    /// <returns>The packages and files of the container.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="dlcContent"/> is <see langword="null"/>.</exception>
+    /// <exception cref="DlcFormatException">The input is not a usable DLC container.</exception>
+    /// <exception cref="DlcServiceException">The key service did not provide a key.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was cancelled.</exception>
     public Task<DlcContainer> DecodeAsync(string dlcContent, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dlcContent);
         return DecodeTextAsync(dlcContent, cancellationToken);
     } 
+
+    /// <summary>
+    /// Decrypts a container that is given as bytes.
+    /// </summary>
+    /// <param name="dlcBytes">The bytes of a .dlc file, as UTF-8 text.</param>
+    /// <param name="cancellationToken">Cancels the request to the key service.</param>
+    /// <returns>The packages and files of the container.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="dlcBytes"/> is <see langword="null"/>.</exception>
+    /// <exception cref="DlcFormatException">The input is not a usable DLC container.</exception>
+    /// <exception cref="DlcServiceException">The key service did not provide a key.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was cancelled.</exception>
     public Task<DlcContainer> DecodeAsync(byte[] dlcBytes, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dlcBytes);
         return DecodeTextAsync(DlcInput.ReadText(dlcBytes), cancellationToken);
     }
 
+    /// <summary>
+    /// Decrypts a container that is read from a stream.
+    /// </summary>
+    /// <param name="stream">A stream with the content of a .dlc file, for example a <see cref="FileStream"/>. It is read to the end and left open.</param>
+    /// <param name="cancellationToken">Cancels reading the stream and the request to the key service.</param>
+    /// <returns>The packages and files of the container.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="DlcFormatException">The input is not a usable DLC container.</exception>
+    /// <exception cref="DlcServiceException">The key service did not provide a key.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was cancelled.</exception>
     public async Task<DlcContainer> DecodeAsync(Stream stream, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -52,6 +119,18 @@ public sealed partial class DlcDecoder
         return await DecodeTextAsync(text, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Decrypts a container without any network access, using a container key that is already known.
+    /// </summary>
+    /// <remarks>
+    /// Take the key from <see cref="DlcContainer.ContainerKey"/> of an earlier call to one of the <c>DecodeAsync</c> methods.
+    /// </remarks>
+    /// <param name="dlcContent">The content of a .dlc file.</param>
+    /// <param name="containerKey">The 16-byte container key of this file.</param>
+    /// <returns>The packages and files of the container.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="dlcContent"/> or <paramref name="containerKey"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="containerKey"/> is not exactly 16 bytes.</exception>
+    /// <exception cref="DlcFormatException">The input is not a usable DLC container, or the key does not belong to it.</exception>
     public DlcContainer Decode(string dlcContent, byte[] containerKey)
     {
         ArgumentNullException.ThrowIfNull(dlcContent);
