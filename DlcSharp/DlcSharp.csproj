@@ -1,10 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+
+        <!-- Build -->
         <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsAotCompatible>true</IsAotCompatible>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!-- NuGet: identity -->
+        <PackageId>DlcSharp</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>MCmoderSD</Authors>
+
+        <!-- NuGet: description -->
+        <Title>DLC-Sharp</Title>
+        <Description>Small .NET library that decrypts JDownloader DLC containers into plain data objects (packages, file names, URLs, sizes) and JSON.</Description>
+        <PackageTags>dlc;jdownloader;container;decrypt;decoder</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+
+        <!-- NuGet: license -->
+        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+        <Copyright>Copyright (c) 2026, Seraphin Berger</Copyright>
+
+        <!-- NuGet: repository -->
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://www.GitHub.com/MCmoderSD/DLC-Sharp</RepositoryUrl>
+        <PackageProjectUrl>https://www.GitHub.com/MCmoderSD/DLC-Sharp</PackageProjectUrl>
+
+        <!-- NuGet: source link and symbols -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="..\icon\icon.png" Pack="true" PackagePath="\" Visible="false"/>
+    </ItemGroup>
 
 </Project>
