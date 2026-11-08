@@ -112,6 +112,7 @@ namespace DlcSharp.Tests
         [InlineData("not base64")]  // length is no multiple of four
         [InlineData(" 42 ")]        // the same, and the input comes back untrimmed
         [InlineData("A===")]        // more than two padding characters
+        [InlineData("====")]        // nothing but padding
         [InlineData("ab!=")]        // a character outside the alphabet
         [InlineData("QQ==QQ==")]    // padding in the middle
         [InlineData("//7/")]        // valid Base64, but the bytes are no valid UTF-8
