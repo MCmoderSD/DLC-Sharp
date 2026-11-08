@@ -68,10 +68,6 @@ namespace DlcSharp.Internal
             {
                 return StrictUtf8.GetString(Convert.FromBase64String(s));
             }
-            catch (FormatException)
-            {
-                return raw;
-            }
             catch (DecoderFallbackException)
             {
                 return raw;

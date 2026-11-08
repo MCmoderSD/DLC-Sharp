@@ -29,9 +29,9 @@ namespace DlcSharp.Internal
                 throw new DlcFormatException("The decrypted container is not valid XML: " + ex.Message, ex);
             }
 
-            var root = document.Root;
-            var content = root?.Element("content");
-            if (root == null || content == null)
+            var root = document.Root!;
+            var content = root.Element("content");
+            if (content == null)
             {
                 throw new DlcFormatException("The decrypted XML has no content element, so it is not a DLC container.");
             }
