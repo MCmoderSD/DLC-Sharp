@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build and test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v7
+
+      - id: setup-dotnet
+        name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - id: restore
+        name: Restore
+        run: dotnet restore DlcSharp.slnx
+
+      - id: build
+        name: Build
+        run: dotnet build DlcSharp.slnx --no-restore
+
+      - id: test
+        name: Test with coverage
+        run: dotnet test --solution DlcSharp.slnx --no-build -- --coverage --coverage-output-format cobertura --coverage-settings tests/DlcSharp.Tests/coverage.config
+
+      - id: coverage
+        name: Check the coverage
+        shell: pwsh
+        run: |
+          $report = Get-ChildItem TestResults -Recurse -Filter '*.cobertura.xml' | Select-Object -First 1
+          if (-not $report) { throw 'No coverage report was written.' }
+
+          [xml]$xml = Get-Content $report.FullName
+          $lines = [double]$xml.coverage.'line-rate'
+          $branches = [double]$xml.coverage.'branch-rate'
+          $summary = "Coverage of DlcSharp.dll: lines {0:P1} ({1}/{2}), branches {3:P1} ({4}/{5})" -f $lines, $xml.coverage.'lines-covered', $xml.coverage.'lines-valid', $branches, $xml.coverage.'branches-covered', $xml.coverage.'branches-valid'
+
+          Write-Host $summary
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $summary
+
+          if ($lines -lt 1 -or $branches -lt 1) { throw 'The coverage of lines and branches must be 100 %.' }
