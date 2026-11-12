@@ -4,6 +4,7 @@ namespace Examples;
 
 // Two kinds of errors can happen: the file is not usable, or the key service does not help.
 // Both derive from DlcException, so a single catch (DlcException) also works if you do not need the difference.
+// DlcException is closed: the compiler checks that a switch over it covers both kinds.
 internal static class ErrorHandlingExample
 {
     public static async Task RunAsync(string dlcPath)
@@ -62,7 +63,12 @@ internal static class ErrorHandlingExample
         }
         catch (DlcException ex)
         {
-            Console.WriteLine($"3) Another problem: {ex.Message}");
+            var kind = ex switch
+            {
+                DlcFormatException => "file problem",
+                DlcServiceException => "key service problem"
+            };
+            Console.WriteLine($"3) Another {kind}: {ex.Message}");
         }
     }
 }

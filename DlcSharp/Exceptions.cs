@@ -5,14 +5,18 @@ namespace DlcSharp;
 /// <summary>
 /// Base class of the exceptions that DlcSharp throws on purpose, so a single <c>catch</c> handles all of them.
 /// </summary>
-public class DlcException : Exception
+/// <remarks>
+/// The class is <c>closed</c>: only <see cref="DlcFormatException"/> and <see cref="DlcServiceException"/> derive from it,
+/// so the compiler can check that a <c>switch</c> over a <see cref="DlcException"/> covers both.
+/// </remarks>
+public closed class DlcException : Exception
 {
     /// <summary>
     /// Creates the exception.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     /// <param name="innerException">The error that caused this one, if there is one.</param>
-    protected DlcException(string message, Exception? innerException = null) : base(message, innerException) { }
+    private protected DlcException(string message, Exception? innerException = null) : base(message, innerException) { }
 }
 
 /// <summary>
