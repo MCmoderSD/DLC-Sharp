@@ -2,7 +2,7 @@
 
 A small .NET library that opens **JDownloader DLC containers**. You give it a `.dlc` file and get back the packages, file names, sizes and download links as plain objects, or as JSON.
 
-- Targets `net10.0` and has no third-party dependencies: AES comes from `System.Security.Cryptography`, JSON from `System.Text.Json`.
+- Targets `net11.0` and has no third-party dependencies: AES comes from `System.Security.Cryptography`, JSON from `System.Text.Json`.
 - Plain model classes. The JSON output uses serializers generated at compile time, so it needs no reflection.
 - Written from scratch against the public format, without code from other DLC libraries.
 
@@ -14,7 +14,7 @@ A small .NET library that opens **JDownloader DLC containers**. You give it a `.
 dotnet add package DlcSharp
 ```
 
-The package targets `net10.0`.
+The package targets `net11.0`. On .NET 10, use version 1.0.0.
 
 ## Quick start
 
@@ -89,7 +89,7 @@ The options are validated and copied when the decoder is created. `AppName`, `Ap
 
 ## Errors
 
-All exceptions derive from `DlcException`.
+All exceptions derive from `DlcException`. The class is `closed`, so a `switch` over `DlcFormatException` and `DlcServiceException` needs no default arm.
 
 | Exception                    | When                                                                                                                                                                                                                          |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -138,7 +138,7 @@ dotnet run --project examples/DlcSharp.Examples -- basic links.dlc
 dotnet test
 ```
 
-The tests use xUnit v3 on .NET 10. They need no network and no real `.dlc` file: they build encrypted containers themselves and play the key service with a fake `HttpMessageHandler`.
+The tests use xUnit v3 on .NET 11. They need no network and no real `.dlc` file: they build encrypted containers themselves and play the key service with a fake `HttpMessageHandler`.
 
 Line and branch coverage of `DlcSharp.dll` is 100 %. Source-generated code (the regular expression and the JSON serializers) is not counted. To measure it:
 
