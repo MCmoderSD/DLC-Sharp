@@ -34,7 +34,7 @@ jobs:
         name: Set up .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
 
       - id: version
         name: Check that the tag matches the project version
@@ -96,7 +96,7 @@ jobs:
         name: Set up .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
 
       - id: login
         name: NuGet login (OIDC to temporary API key)
@@ -130,7 +130,7 @@ jobs:
         name: Set up .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
 
       - id: push
         name: Push to GitHub Packages
@@ -158,7 +158,7 @@ jobs:
         name: Set up .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
 
       - id: push
         name: Push to Nexus
